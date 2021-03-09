@@ -1,6 +1,7 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using Grpc.Core.Interceptors;
 using Grpc.Net.Client;
 using GrpcGreeter;
 using Microsoft.Extensions.Configuration;
@@ -17,7 +18,7 @@ namespace GrpcBandwagon
         public ClientWorker(ILogger<ClientWorker> logger, IConfiguration configuration)
         {
             _logger = logger;
-            _url = configuration["Kestrel:Endpoints:Http:Url"];
+            _url = configuration["Kestrel:Endpoints:gRPC:Url"];
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)

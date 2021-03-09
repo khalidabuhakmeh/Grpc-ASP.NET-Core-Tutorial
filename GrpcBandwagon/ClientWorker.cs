@@ -17,23 +17,30 @@ namespace GrpcBandwagon
         public ClientWorker(ILogger<ClientWorker> logger, IConfiguration configuration)
         {
             _logger = logger;
-            _url = configuration["Kestrel:Endpoints:Http:Url"];
+            _url = "https://localhost:5001";
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            using var channel = GrpcChannel.ForAddress(_url);
-            var client = new Greeter.GreeterClient(channel);
-
-            while (!stoppingToken.IsCancellationRequested)
+            try
             {
-                var reply = await client.SayHelloAsync(new HelloRequest
+                using var channel = GrpcChannel.ForAddress(_url);
+                var client = new Greeter.GreeterClient(channel);
+            
+                while (!stoppingToken.IsCancellationRequested)
                 {
-                    Name = "Worker"
-                });
-
-                _logger.LogInformation($"Greeting: {reply.Message} -- {DateTime.Now}");
-                await Task.Delay(1000, stoppingToken);
+                    var reply = await client.SayHelloAsync(new HelloRequest
+                    {
+                        Name = "Worker"
+                    });
+            
+                    _logger.LogInformation($"Greeting: {reply.Message} -- {DateTime.Now}");
+                    await Task.Delay(1000, stoppingToken);
+                }
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, e.Message);
             }
         }
     }
